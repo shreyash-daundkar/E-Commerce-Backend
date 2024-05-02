@@ -1,8 +1,10 @@
-import express, { Express, Request, Response, NextFunction } from 'express';
+import express, { Express } from 'express';
 import { PORT } from './utils/variables';
 import indexRouter from './routes';
 
 const app: Express = express();
+
+app.use(express.json());
 
 app.use('/api', indexRouter);
 

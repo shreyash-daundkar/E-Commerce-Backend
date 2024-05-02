@@ -1,6 +1,6 @@
-import Prisma, { User } from "../../services/prisma"
+import Prisma from "../../services/prisma"
 import { getUserByEmail, createUserInput, createUser } from "../../services/user"
-
+import { mockUser, createUserInputMock } from "../mock.data";
 
 
 
@@ -13,19 +13,7 @@ jest.mock("../../services/prisma", () => ({
 
 
 
-
 describe('User Service', () => {
-
-
-
-    const mockUser = {
-        id: 1,
-        name: 'test',
-        email: 'test@gmail.com',
-        password: 'password',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    } as User;
 
 
 
@@ -63,19 +51,11 @@ describe('User Service', () => {
 
     describe('Create User', () => {
 
-
-        const createUserInput: createUserInput = {
-            name: mockUser.name,
-            email: mockUser.email,
-            password: mockUser.password,
-        };
-
-
         it('should create and return user', async () => {
 
             (Prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
     
-            const user = await createUser(createUserInput);
+            const user = await createUser(createUserInputMock);
             expect(user).toBe(mockUser);
         });
 
@@ -86,7 +66,7 @@ describe('User Service', () => {
 
             (Prisma.user.create as jest.Mock).mockRejectedValue(new Error(errorMessage));
     
-            await expect(createUser(createUserInput)).rejects.toThrow(errorMessage);
+            await expect(createUser(createUserInputMock)).rejects.toThrow(errorMessage);
         });
 
     });
