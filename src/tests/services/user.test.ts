@@ -1,5 +1,7 @@
 import Prisma, { User } from "../../services/prisma"
-import { getUserByEmail } from "../../services/user"
+import { getUserByEmail, createUserInput, createUser } from "../../services/user"
+
+
 
 
 jest.mock("../../services/prisma", () => ({
@@ -10,7 +12,11 @@ jest.mock("../../services/prisma", () => ({
 }));
 
 
+
+
 describe('User Service', () => {
+
+
 
     const mockUser = {
         id: 1,
@@ -22,6 +28,7 @@ describe('User Service', () => {
     } as User;
 
 
+
     describe('Get user by Email', () => {
 
 
@@ -30,7 +37,6 @@ describe('User Service', () => {
             (Prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
     
             const user = await getUserByEmail('test@gmail.com');
-    
             expect(user).toBe(mockUser);
         });
 
@@ -40,7 +46,6 @@ describe('User Service', () => {
             (Prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
     
             const user = await getUserByEmail('test@gmail.com');
-    
             expect(user).toBeNull();
         });
 
@@ -50,8 +55,38 @@ describe('User Service', () => {
             const errorMessage = 'Database error';
 
             (Prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error(errorMessage));
-    
             await expect(getUserByEmail('test@gmail.com')).rejects.toThrow(errorMessage);
+        });
+    });
+
+
+
+    describe('Create User', () => {
+
+
+        const createUserInput: createUserInput = {
+            name: mockUser.name,
+            email: mockUser.email,
+            password: mockUser.password,
+        };
+
+
+        it('should create and return user', async () => {
+
+            (Prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
+    
+            const user = await createUser(createUserInput);
+            expect(user).toBe(mockUser);
+        });
+
+
+        it('should throw error if it failed', async () => {
+
+            const errorMessage = 'Database error';
+
+            (Prisma.user.create as jest.Mock).mockRejectedValue(new Error(errorMessage));
+    
+            await expect(createUser(createUserInput)).rejects.toThrow(errorMessage);
         });
 
     });
