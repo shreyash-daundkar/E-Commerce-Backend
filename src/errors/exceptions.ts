@@ -1,4 +1,4 @@
-import { ErrorCode } from "./error-codes";
+import { ErrorCode } from "./codes";
 
 export class HttpException extends Error {
 
@@ -27,8 +27,14 @@ export class NotFoundException extends HttpException {
 }
 
 export class InternalException extends HttpException {
-    constructor(message: string, errorCode: ErrorCode, error: any) {
-        super(message, errorCode, error, 500);
+    constructor(error: any) {
+        super('Internal Exception', ErrorCode.INTERNAL_EXCEPTION, error, 500);
+    };
+}
+
+export class UnprocessableEntityException extends HttpException {
+    constructor(error: any) {
+        super('Unprocessable Entity', ErrorCode.UNPROCESSABLEENTITY, error, 422);
     };
 }
 
