@@ -3,6 +3,8 @@ import { compare, hash } from "bcrypt";
 import { createUser, getUserByEmail } from "../services/user";
 import { sign } from "jsonwebtoken";
 import { JWT_SECRET } from "../utils/variables";
+import { BadRequestException, InternalException, NotFoundException } from "../errors/exceptions";
+import { ErrorCode } from "../errors/error-codes";
 
 
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
@@ -10,27 +12,36 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
         const { name, email, password } = req.body;
 
         let user = await getUserByEmail(email);
+
         if (user) {
-            throw Error('User already exists!');
+            return next( new BadRequestException(
+                'User already exists!', 
+                ErrorCode.USER_ALREADY_EXIST, 
+                null,
+            ));
         }
 
         const encryptPassword = await hash(password, 10);
-        user = await createUser({ name, email, password: encryptPassword });
 
-        res.status(201).json({
+        user = await createUser({
+            name, 
+            email, 
+            password: encryptPassword,
+        });
+
+        return res.status(201).json({
             message: 'User created successfully', 
             data: user,
             success: true,
         });
 
     } catch (error) {
-        console.error('Error signing up:', error);
-
-        return res.status(500).json({ 
-            message: 'Failed to sign up',
-            error,
-            success: false,
-         });
+    
+         return next( new InternalException(
+            'Failed to signup', 
+            ErrorCode.INTERNAL_EXCEPTION, 
+            error
+        ));
     }
 };
 
@@ -40,32 +51,41 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         const { email, password } = req.body;
 
         let user = await getUserByEmail(email);
+
         if (!user) {
-            throw Error('User not exists!');
+            return next( new NotFoundException(
+                'User not exists!', 
+                ErrorCode.USER_NOT_FOUND, 
+                null
+            ));
         }
 
-        const passwordVerified = await compare(password, user.password);
+        const passwordVerified = await compare(password, user!.password);
+
         if(!passwordVerified) {
-            throw Error('Wrong password!');
+            return next( new BadRequestException(
+                'Wrong password!', 
+                ErrorCode.INCORRECT_PASSWORD, 
+                null
+            ));
         }
 
         const token = await sign({
-            userId: user.id,
+            userId: user!.id,
         }, JWT_SECRET);
 
-        res.status(201).json({
+        return res.status(201).json({
             message: 'Login successfully', 
             data: token,
             success: true,
         });
 
     } catch (error) {
-        console.error('Error signing up:', error);
 
-        return res.status(500).json({ 
-            message: 'Failed to login',
-            error,
-            success: false,
-         });
+        return next( new InternalException(
+            'Failed to login', 
+            ErrorCode.INTERNAL_EXCEPTION, 
+            error
+        ));
     }
 };
