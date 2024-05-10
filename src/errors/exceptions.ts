@@ -1,3 +1,5 @@
+import { ErrorCode } from "./error-codes";
+
 export class HttpException extends Error {
 
     errorCode: ErrorCode;
@@ -18,9 +20,15 @@ export class BadRequestException extends HttpException {
     };
 }
 
-export enum ErrorCode {
-    USER_ALREADY_EXIST = 1001,
-    USER_NOT_FOUND = 1002,
-    INCORRECT_PASSWORD = 1003,
+export class NotFoundException extends HttpException {
+    constructor(message: string, errorCode: ErrorCode, error: any) {
+        super(message, errorCode, error, 404);
+    };
+}
+
+export class InternalException extends HttpException {
+    constructor(message: string, errorCode: ErrorCode, error: any) {
+        super(message, errorCode, error, 500);
+    };
 }
 
