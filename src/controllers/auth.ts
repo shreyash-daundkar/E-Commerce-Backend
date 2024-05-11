@@ -3,12 +3,15 @@ import { compare, hash } from "bcrypt";
 import { createUser, getUserByEmail } from "../services/user";
 import { sign } from "jsonwebtoken";
 import { JWT_SECRET } from "../utils/variables";
-import { BadRequestException, InternalException, NotFoundException } from "../errors/exceptions";
-import { ErrorCode } from "../errors/error-codes";
+import { BadRequestException, NotFoundException } from "../errors/exceptions";
+import { ErrorCode } from "../errors/codes";
+import { signUpSchema } from "../schema/user";
 
 
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+
+        signUpSchema.parse(req.body);
+
         const { name, email, password } = req.body;
 
         let user = await getUserByEmail(email);
@@ -34,20 +37,11 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
             data: user,
             success: true,
         });
-
-    } catch (error) {
-    
-         return next( new InternalException(
-            'Failed to signup', 
-            ErrorCode.INTERNAL_EXCEPTION, 
-            error
-        ));
-    }
 };
 
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+
         const { email, password } = req.body;
 
         let user = await getUserByEmail(email);
@@ -79,13 +73,4 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             data: token,
             success: true,
         });
-
-    } catch (error) {
-
-        return next( new InternalException(
-            'Failed to login', 
-            ErrorCode.INTERNAL_EXCEPTION, 
-            error
-        ));
-    }
 };

@@ -6,7 +6,8 @@ import { login, signUp } from "../../controllers/auth";
 import { sign } from "jsonwebtoken";
 import { JWT_SECRET } from "../../utils/variables";
 import { BadRequestException, InternalException, NotFoundException } from "../../errors/exceptions";
-import { ErrorCode } from "../../errors/error-codes";
+import { ErrorCode } from "../../errors/codes";
+import { signUpSchema } from "../../schema/user";
 
 
 
@@ -24,6 +25,7 @@ jest.mock('jsonwebtoken', () => ({
     sign: jest.fn(),
 }));
 
+
 let req: Partial<Request>;
 let res: Partial<Response>;
 let next: jest.MockedFunction<NextFunction>;
@@ -35,6 +37,7 @@ describe('User controller', () => {
     beforeEach(() => {
         res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
         next = jest.fn();
+        const signUpSchemaParseMock = jest.spyOn(signUpSchema, 'parse');
     });
     
     afterEach(() => jest.clearAllMocks());
@@ -45,15 +48,16 @@ describe('User controller', () => {
         
         req = { body: { name: 'Test User', email: 'test@example.com', password: 'password' }};
 
-
         it('Should create user and give success responce', async () => {
 
+            (signUpSchema.parse as jest.Mock).mockResolvedValue(req.body);
             (getUserByEmail as jest.Mock).mockResolvedValue(null);
             (hash as jest.Mock).mockResolvedValue('password');
             (createUser as jest.Mock).mockResolvedValue(mockUser);
 
             await signUp(req as Request, res as Response, next);
-
+            
+            expect(signUpSchema.parse).toHaveBeenCalledWith(req.body);
             expect(getUserByEmail).toHaveBeenCalledWith(req.body.email);
             expect(hash).toHaveBeenCalledWith(req.body.password, 10);
             expect(createUser).toHaveBeenCalledWith(req.body);
@@ -68,43 +72,25 @@ describe('User controller', () => {
 
         it('Should give fail responce if user exist already', async () => {
             
+            (signUpSchema.parse as jest.Mock).mockResolvedValue(req.body);
             (getUserByEmail as jest.Mock).mockResolvedValue(mockUser);
             (hash as jest.Mock).mockResolvedValue('password');
             (createUser as jest.Mock).mockResolvedValue(mockUser);
-
+            
             const badRequestException = new BadRequestException(
                 'User already exists!', 
                 ErrorCode.USER_ALREADY_EXIST, 
                 null,
             )
-
+            
             await signUp(req as Request, res as Response, next);
-
+            
+            expect(signUpSchema.parse).toHaveBeenCalledWith(req.body);
+            expect(signUpSchema.parse).toHaveBeenCalledWith(req.body);
             expect(getUserByEmail).toHaveBeenCalledWith(req.body.email);
             expect(next).toHaveBeenCalledWith(badRequestException);
             expect(hash).not.toHaveBeenCalled();
             expect(createUser).not.toHaveBeenCalled();
-        });
-
-
-        it('Should give fail responce if get any error', async () => {
-            
-            (getUserByEmail as jest.Mock).mockResolvedValue(null);
-            (hash as jest.Mock).mockResolvedValue('password');
-            (createUser as jest.Mock).mockRejectedValue(new Error('Database Error'));
-
-            const internalException = new InternalException(
-                'Failed to signup', 
-                ErrorCode.INTERNAL_EXCEPTION, 
-                new Error('Database Error'),
-            )
-
-            await signUp(req as Request, res as Response, next);
-
-            expect(getUserByEmail).toHaveBeenCalledWith(req.body.email);
-            expect(hash).toHaveBeenCalledWith(req.body.password, 10);
-            expect(createUser).toHaveBeenCalledWith(req.body);
-            expect(next).toHaveBeenCalledWith(internalException);
         });
     });
 
