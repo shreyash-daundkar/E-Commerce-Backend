@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { createProduct } from "../../services/product";
 import { createProductSchema } from "../../schema/product";
 import { mockProduct } from "../mock.data";
-import { addProduct } from "../../controllers/product";
+import { addProduct } from "../../controllers/admin";
 
 jest.mock('../../services/product', () => ({
     createProduct: jest.fn(),
@@ -14,7 +14,7 @@ let next: jest.MockedFunction<NextFunction>;
 
 
 
-describe('Product controller', () => {
+describe('Admin controller', () => {
     
     beforeEach(() => {
         res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
