@@ -1,7 +1,7 @@
 import express, { Express } from 'express';
 import { PORT } from './utils/variables';
 import indexRouter from './routes';
-import { errorMiddleware } from './middlewares/error';
+import errorMiddleware from './middlewares/error';
 
 const app: Express = express();
 

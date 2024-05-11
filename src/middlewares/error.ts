@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { HttpException } from "../errors/exceptions";
 
-export const errorMiddleware = (error: HttpException, req: Request, res: Response, next: NextFunction) => {
+const errorMiddleware = (error: HttpException, req: Request, res: Response, next: NextFunction) => {
     try {
         
         console.log(error.message, error.error);
@@ -23,3 +23,5 @@ export const errorMiddleware = (error: HttpException, req: Request, res: Respons
         });
     }
 }
+
+export default errorMiddleware;
