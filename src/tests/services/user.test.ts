@@ -1,5 +1,5 @@
 import Prisma from "../../services/prisma"
-import { getUserByEmail, createUserInput, createUser } from "../../services/user"
+import { getUserByEmail, createUserInput, createUser, getUserById } from "../../services/user"
 import { mockUser, createUserInputMock } from "../mock.data";
 
 
@@ -44,6 +44,38 @@ describe('User Service', () => {
 
             (Prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error(errorMessage));
             await expect(getUserByEmail('test@gmail.com')).rejects.toThrow(errorMessage);
+        });
+    });
+
+
+
+    describe('Get user by Id', () => {
+
+
+        it('should return user with given id', async () => {
+
+            (Prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+    
+            const user = await getUserById(1);
+            expect(user).toBe(mockUser);
+        });
+
+
+        it('should return null if user not found', async () => {
+
+            (Prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+    
+            const user = await getUserById(1);
+            expect(user).toBeNull();
+        });
+
+
+        it('should throw error if it failed', async () => {
+
+            const errorMessage = 'Database error';
+
+            (Prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error(errorMessage));
+            await expect(getUserById(1)).rejects.toThrow(errorMessage);
         });
     });
 
