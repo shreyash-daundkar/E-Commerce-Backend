@@ -53,3 +53,17 @@ export const deleteProduct = async (id: number): Promise<Product | null> => {
         return null;
     }
 }
+
+
+export const readProductById = async (id: number): Promise<Product | null> => {
+    try {
+        const product = await Prisma.product.findUnique({
+            where: { id }
+        });
+        return product;
+
+    } catch (error) {
+        console.log("Error reading product");
+        return null;
+    }
+}
