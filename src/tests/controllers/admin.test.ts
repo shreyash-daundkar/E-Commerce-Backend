@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { createProduct, updateProduct } from "../../services/product";
+import { createProduct, deleteProduct, updateProduct } from "../../services/product";
 import { createProductSchema } from "../../schema/product";
 import { mockProduct } from "../mock.data";
-import { addProduct, editProduct } from "../../controllers/admin";
+import { addProduct, editProduct, removeProduct } from "../../controllers/admin";
 import { InternalException } from "../../errors/exceptions";
 
 jest.mock('../../services/product', () => ({
     createProduct: jest.fn(),
     updateProduct: jest.fn(),
+    deleteProduct: jest.fn(),
 }));
 
 let req: Partial<Request>;
@@ -119,6 +120,48 @@ describe('Admin controller', () => {
             await editProduct(req as Request, res as Response, next);
             
             expect(updateProduct).toHaveBeenCalledWith(1, req.body.updatedData);
+            expect(next).toHaveBeenCalledWith(internalException);
+        });
+    });
+
+
+
+    describe('remove product', () => {
+        beforeEach(() => {
+            req = { 
+                params: {
+                    id: '1',
+                }
+            }
+        })
+
+        it('should remove product and return success responce', async () => {
+
+            (deleteProduct as jest.Mock).mockResolvedValue(mockProduct);
+
+            await removeProduct(req as Request, res as Response, next);
+            
+            expect(deleteProduct).toHaveBeenCalledWith(1);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                message: 'Product removed successfully', 
+                data: mockProduct,
+                success: true,
+            });
+
+        });
+
+
+        it('should return internal exception if error removing product', async () => {
+
+            (deleteProduct as jest.Mock).mockResolvedValue(null);
+
+            const error = new Error('Error deleting product');
+            const internalException = new InternalException(error);
+
+            await removeProduct(req as Request, res as Response, next);
+            
+            expect(deleteProduct).toHaveBeenCalledWith(1);
             expect(next).toHaveBeenCalledWith(internalException);
         });
     });

@@ -20,7 +20,7 @@ export const createProduct = async (data: createProductInput): Promise<Product |
         return product;
 
     } catch (error) {
-        console.log("Error creating user");
+        console.log("Error creating product");
         return null;
     }
 }
@@ -35,7 +35,21 @@ export const updateProduct = async (id: number, data: updateProductArgs): Promis
         return product;
 
     } catch (error) {
-        console.log("Error creating user");
+        console.log("Error updating product");
+        return null;
+    }
+}
+
+
+export const deleteProduct = async (id: number): Promise<Product | null> => {
+    try {
+        const product = await Prisma.product.delete({
+            where: { id }
+        });
+        return product;
+
+    } catch (error) {
+        console.log("Error deleting product");
         return null;
     }
 }
