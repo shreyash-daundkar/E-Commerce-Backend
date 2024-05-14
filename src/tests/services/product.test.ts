@@ -1,4 +1,4 @@
-import { createProduct, updateProduct } from "../../services/product";
+import { createProduct, deleteProduct, updateProduct } from "../../services/product";
 import Prisma from "../../services/prisma";
 import { createProductInputMock, mockProduct } from "../mock.data";
 
@@ -7,6 +7,7 @@ jest.mock("../../services/prisma", () => ({
         findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        delete: jest.fn(),
     },
 }));
 
@@ -59,6 +60,31 @@ describe('Product Service', () => {
             (Prisma.product.update as jest.Mock).mockRejectedValue(new Error(errorMessage));
     
             const product = await updateProduct(1, createProductInputMock);
+
+            expect(product).toBeNull();
+        });
+    
+    });
+
+
+    describe('Delete Product', () => {
+    
+        it('should delete and return product', async () => {
+    
+            (Prisma.product.delete as jest.Mock).mockResolvedValue(mockProduct);
+    
+            const product = await deleteProduct(1);
+            expect(product).toBe(mockProduct);
+        });
+    
+    
+        it('should return null if it failed', async () => {
+    
+            const errorMessage = 'Database error';
+    
+            (Prisma.product.delete as jest.Mock).mockRejectedValue(new Error(errorMessage));
+    
+            const product = await deleteProduct(1);
 
             expect(product).toBeNull();
         });
