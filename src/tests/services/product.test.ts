@@ -1,4 +1,4 @@
-import { createProduct, deleteProduct, readProductById, updateProduct } from "../../services/product";
+import { createProduct, deleteProduct, getProductCount, readProductById, updateProduct } from "../../services/product";
 import Prisma from "../../services/prisma";
 import { createProductInputMock, mockProduct } from "../mock.data";
 
@@ -8,6 +8,7 @@ jest.mock("../../services/prisma", () => ({
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        count: jest.fn(),
     },
 }));
 
@@ -112,6 +113,31 @@ describe('Product Service', () => {
             const product = await readProductById(1);
 
             expect(product).toBeNull();
+        });
+    
+    });
+
+
+    describe('get product count', () => {
+    
+        it('should return product counts', async () => {
+    
+            (Prisma.product.count as jest.Mock).mockResolvedValue(1);
+    
+            const count = await getProductCount();
+            expect(count).toBe(1);
+        });
+    
+    
+        it('should return null if it failed', async () => {
+    
+            const errorMessage = 'Database error';
+    
+            (Prisma.product.count as jest.Mock).mockRejectedValue(new Error(errorMessage));
+    
+            const count = await getProductCount();
+
+            expect(count).toBeNull();
         });
     
     });

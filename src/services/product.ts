@@ -67,3 +67,14 @@ export const readProductById = async (id: number): Promise<Product | null> => {
         return null;
     }
 }
+
+export const getProductCount = async (): Promise<number | null> => {
+    try {
+        const count = await Prisma.product.count();
+        return count;
+
+    } catch (error) {
+        console.log("Error counting product");
+        return null;
+    }
+}
