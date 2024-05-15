@@ -1,4 +1,4 @@
-import { createCartItem } from "../../services/cart";
+import { createCartItem, deleteCartItem } from "../../services/cart";
 import Prisma from "../../services/prisma";
 import { createCartItemInputMock, mockCartItem } from "../mock.data";
 
@@ -37,7 +37,31 @@ describe('Cart Service', () => {
             const cartItem = await createCartItem(createCartItemInputMock);
 
             expect(cartItem).toBeNull();
+        });  
+    });
+
+
+    describe('Delete Cart Item', () => {
+    
+        it('should delete and return carItem', async () => {
+    
+            (Prisma.cartItem.delete as jest.Mock).mockResolvedValue(mockCartItem);
+    
+            const cartItem = await deleteCartItem(1, 1);
+    
+            expect(cartItem).toBe(mockCartItem);
         });
-     
+    
+    
+        it('should return null if it failed', async () => {
+    
+            const errorMessage = 'Database error';
+    
+            (Prisma.cartItem.delete as jest.Mock).mockRejectedValue(new Error(errorMessage));
+    
+            const cartItem = await deleteCartItem(1, 1);
+    
+            expect(cartItem).toBeNull();
+        });
     });
 });

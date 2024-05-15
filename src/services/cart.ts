@@ -19,14 +19,34 @@ export const createCartItem = async (data: createCartItemsInput): Promise<CartIt
                 },
             },
             update: {
-                quantity: quantity + 1,
+                quantity: {
+                    increment: quantity,
+                },
             },
             create: data,
         });
         return cartItem;
 
     } catch (error) {
-        console.log("Error creating product", error);
+        console.log("Error creating cart item", error);
+        return null;
+    }
+}
+
+
+export const deleteCartItem = async (id: number, userId: number): Promise<CartItem | null> => {
+    try {
+
+        const cartItem = await Prisma.cartItem.delete({
+            where: {
+                id,
+                userId,
+            },
+        });
+        return cartItem;
+
+    } catch (error) {
+        console.log("Error deleting cart item", error);
         return null;
     }
 }
