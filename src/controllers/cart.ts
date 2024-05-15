@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { addToCartSchema } from "../schema/cart";
-import { createCartItem } from "../services/cart";
+import { createCartItem, deleteCartItem } from "../services/cart";
 import { InternalException } from "../errors/exceptions";
+import { User } from "../services/prisma";
 
 export const addToCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -19,6 +20,27 @@ export const addToCart = async (req: Request, res: Response, next: NextFunction)
     
         return res.status(201).json({
             message: 'Add to cart successfully', 
+            data: cartItem,
+            success: true,
+        });
+        
+    } catch (error) {
+        return next( new InternalException(error));
+    }
+}
+
+
+export const removeFromCart = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const id: number = +req.params.id;
+        const user: User= req.body.user;
+    
+        const cartItem = await deleteCartItem(id, user.id);
+
+        if(!cartItem) throw new Error('Error deleting cart item');
+    
+        return res.status(201).json({
+            message: 'Delete from cart successfully', 
             data: cartItem,
             success: true,
         });

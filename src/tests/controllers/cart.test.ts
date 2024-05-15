@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import { createCartItem } from "../../services/cart";
+import { createCartItem, deleteCartItem } from "../../services/cart";
 import { addToCartSchema } from "../../schema/cart";
 import { mockCartItem } from "../mock.data";
-import { addToCart } from "../../controllers/cart";
+import { addToCart, removeFromCart } from "../../controllers/cart";
 import { InternalException } from "../../errors/exceptions";
 
 jest.mock('../../services/cart', () => ({
     createCartItem: jest.fn(),
+    deleteCartItem: jest.fn(),
 }));
 
 let req: Partial<Request>;
@@ -79,6 +80,54 @@ describe('cart controller', () => {
                 quantity: 1,
                 userId: 1,
             });
+            expect(next).toHaveBeenCalledWith(internalException);
+        });
+    });
+
+
+    describe('Delete from cart', () => {
+
+        beforeEach(() => {
+            req = { 
+                body: {
+                    user: {
+                        id: 1,
+                    },
+                },
+                params: {
+                    id: '1',
+                },
+            }
+        });
+
+
+        it('should delete from cart and return success responce', async () => {
+
+            (deleteCartItem as jest.Mock).mockResolvedValue(mockCartItem);
+
+            await removeFromCart(req as Request, res as Response, next);
+            
+            expect(deleteCartItem).toHaveBeenCalledWith(1, 1);
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({
+                message: 'Delete from cart successfully', 
+                data: mockCartItem,
+                success: true,
+            });
+
+        });
+
+
+        it('should return internal exception if error adding to cart', async () => {
+
+            (deleteCartItem as jest.Mock).mockResolvedValue(null);
+
+            const error = new Error('Error creating product');
+            const internalException = new InternalException(error);
+
+            await removeFromCart(req as Request, res as Response, next);
+            
+            expect(deleteCartItem).toHaveBeenCalledWith(1, 1);
             expect(next).toHaveBeenCalledWith(internalException);
         });
     });
