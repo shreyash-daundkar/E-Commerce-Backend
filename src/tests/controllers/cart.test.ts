@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { createCartItem, deleteCartItem } from "../../services/cart";
+import { createCartItem, deleteCartItem, getCartItemsByUserId } from "../../services/cart";
 import { addToCartSchema } from "../../schema/cart";
 import { mockCartItem } from "../mock.data";
-import { addToCart, removeFromCart } from "../../controllers/cart";
+import { addToCart, getCart, removeFromCart } from "../../controllers/cart";
 import { InternalException } from "../../errors/exceptions";
 
 jest.mock('../../services/cart', () => ({
     createCartItem: jest.fn(),
     deleteCartItem: jest.fn(),
+    getCartItemsByUserId: jest.fn(),
 }));
 
 let req: Partial<Request>;
@@ -128,6 +129,52 @@ describe('cart controller', () => {
             await removeFromCart(req as Request, res as Response, next);
             
             expect(deleteCartItem).toHaveBeenCalledWith(1, 1);
+            expect(next).toHaveBeenCalledWith(internalException);
+        });
+    });
+
+
+    describe('Get cart', () => {
+
+        beforeEach(() => {
+            req = { 
+                body: {
+                    user: {
+                        id: 1,
+                    },
+                },
+            }
+        });
+        
+
+
+        it('should fetch cart and return success responce', async () => {
+
+            (getCartItemsByUserId as jest.Mock).mockResolvedValue([mockCartItem]);
+
+            await getCart(req as Request, res as Response, next);
+            
+            expect(getCartItemsByUserId).toHaveBeenCalledWith(1);
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({
+                message: 'Fetch cart successfully', 
+                data: [mockCartItem],
+                success: true,
+            });
+
+        });
+
+
+        it('should return internal exception if error getting cart', async () => {
+
+            (getCartItemsByUserId as jest.Mock).mockResolvedValue(null);
+
+            const error = new Error('Error creating product');
+            const internalException = new InternalException(error);
+
+            await getCart(req as Request, res as Response, next);
+            
+            expect(getCartItemsByUserId).toHaveBeenCalledWith(1);
             expect(next).toHaveBeenCalledWith(internalException);
         });
     });
