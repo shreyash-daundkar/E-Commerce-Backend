@@ -78,3 +78,18 @@ export const getProductCount = async (): Promise<number | null> => {
         return null;
     }
 }
+
+
+export const readAllProducts = async (skip?: number, take?: number): Promise<Array<Product> | null> => {
+    try {
+        const products = await Prisma.product.findMany({
+            skip: skip || 0,
+            take: take|| 5,
+        });
+        return products;
+
+    } catch (error) {
+        console.log("Error reading product");
+        return null;
+    }
+}
