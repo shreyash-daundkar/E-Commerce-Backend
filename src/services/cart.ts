@@ -50,3 +50,23 @@ export const deleteCartItem = async (id: number, userId: number): Promise<CartIt
         return null;
     }
 }
+
+
+export const getCartItemsByUserId = async (id: number): Promise<Array<CartItem> | null> => {
+    try {
+
+        const cartItems = await Prisma.cartItem.findMany({
+            where: {
+                userId: id,
+            },
+            include: {
+                product: true,
+            }
+        });
+        return cartItems;
+
+    } catch (error) {
+        console.log("Error deleting cart item", error);
+        return null;
+    }
+}
