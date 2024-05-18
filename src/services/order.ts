@@ -68,3 +68,18 @@ export const updateOrder = async (data: updateOrderInput): Promise<Order | null>
         return null;
     }
 }   
+
+export const getOrders = async (userId?: number): Promise<Array<Order> | null> => {
+    try {
+
+        const where = userId ? { userId } : { isActive: true };
+
+        const orders = await Prisma.order.findMany({ where });
+        
+        return orders
+
+    } catch (error) {
+        console.log("Error deactivating order", error);
+        return null;
+    }
+}

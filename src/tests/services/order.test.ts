@@ -1,4 +1,4 @@
-import { createOrder, updateOrder } from "../../services/order";
+import { createOrder, getOrders, updateOrder } from "../../services/order";
 import Prisma from "../../services/prisma";
 import { createOrderInputMock, mockCartItem, mockOrder, updateOrderInputMock } from "../mock.data";
 
@@ -6,7 +6,8 @@ jest.mock("../../services/prisma", () => ({
     $transaction: jest.fn(),
     order: {
         create: jest.fn(),
-        update: jest.fn(),   
+        update: jest.fn(),  
+        findMany: jest.fn(),  
     },
     cartItem: {
         deleteMany: jest.fn(),
@@ -78,6 +79,30 @@ describe('Order Service', () => {
             (Prisma.order.update as jest.Mock).mockRejectedValue(new Error(errorMessage));
     
             const order = await updateOrder(updateOrderInputMock);
+
+            expect(order).toBeNull();
+        });
+    });
+
+
+    describe('Get Order', () => {
+    
+        it('should get and return order', async () => {
+    
+            (Prisma.order.findMany as jest.Mock).mockResolvedValue([mockOrder]);
+             
+            const order = await getOrders(1);
+
+            expect(order).toStrictEqual([mockOrder]);
+        });
+
+        it('should return null if get order failed', async () => {
+    
+            const errorMessage = 'Database error';
+    
+            (Prisma.order.findMany as jest.Mock).mockRejectedValue(new Error(errorMessage));
+    
+            const order = await getOrders(1);
 
             expect(order).toBeNull();
         });
