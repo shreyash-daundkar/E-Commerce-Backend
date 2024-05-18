@@ -42,3 +42,29 @@ export const createOrder = async (data: createOrderInput): Promise<Order | null>
         return null;
     }
 }
+
+export interface updateOrderInput {
+    id: number,
+    isActive?: boolean,
+    isComplete?: boolean,
+}
+
+export const updateOrder = async (data: updateOrderInput): Promise<Order | null> => {
+    try {
+        const { id } = data;
+
+        const order = await Prisma.order.update({
+            where: {
+                id,
+                isActive: true,
+            },
+            data: data,
+        });
+        
+        return order;
+
+    } catch (error) {
+        console.log("Error deactivating order", error);
+        return null;
+    }
+}   
