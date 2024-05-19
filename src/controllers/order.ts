@@ -75,3 +75,28 @@ export const getOrdersByUserId = async (req: Request, res: Response, next: NextF
         return next( new InternalException(error));
     }
 }
+
+
+export const cancelOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try { 
+        const id: number = +req.params.id;
+
+        const order = await updateOrder({
+            id,
+            isActive: false,
+        });
+
+        if(!order) {
+            throw new Error('Error updating order');
+        }
+    
+        return res.status(201).json({
+            message: 'Order cancled successfully', 
+            data: order,
+            success: true,
+        });
+        
+    } catch (error) {
+        return next( new InternalException(error));
+    }
+}

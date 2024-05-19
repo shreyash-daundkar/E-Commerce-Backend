@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { getCartItemsByUserId } from "../../services/cart";
-import { createOrderInputMock, createUserInputMock, mockCartItem, mockCartItemWithProduct, mockOrder } from "../mock.data";
-import { createOrder, getOrders } from "../../services/order";
-import { getOrdersByUserId, makeOrder } from "../../controllers/order";
+import { createOrderInputMock, createUserInputMock, mockCartItem, mockCartItemWithProduct, mockOrder, updateOrderInputMock } from "../mock.data";
+import { createOrder, getOrders, updateOrder } from "../../services/order";
+import { cancelOrder, getOrdersByUserId, makeOrder } from "../../controllers/order";
 import { InternalException, NotFoundException } from "../../errors/exceptions";
 import { ErrorCode } from "../../errors/codes";
 
@@ -13,6 +13,7 @@ jest.mock('../../services/cart', () => ({
 jest.mock('../../services/order', () => ({
     createOrder: jest.fn(),
     getOrders: jest.fn(),
+    updateOrder: jest.fn(),
 }));
 
 let req: Partial<Request>;
@@ -139,6 +140,48 @@ describe('Order controller', () => {
             await getOrdersByUserId(req as Request, res as Response, next);
             
             expect(getOrders).toHaveBeenCalledWith(1);
+            expect(next).toHaveBeenCalledWith(internalException);
+        });
+    });
+
+
+    describe('Cancel Orders', () => {
+    
+        beforeEach(() => {
+            req = { 
+                params: {
+                    id: "1",
+                },
+            }
+        });
+        
+    
+        it('should cancel order and return success responce', async () => {
+    
+            (updateOrder as jest.Mock).mockResolvedValue(mockOrder);
+            
+            await cancelOrder(req as Request, res as Response, next);
+            
+            expect(updateOrder).toHaveBeenCalledWith(updateOrderInputMock);
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({
+                message: "Order cancled successfully", 
+                data:mockOrder,
+                success: true,
+            });
+    
+        });
+
+        it('should return internal exception if error cancleling order', async () => {
+    
+            (updateOrder as jest.Mock).mockResolvedValue(null);
+
+            const error = new Error('Error updating order');
+            const internalException = new InternalException(error);
+            
+            await cancelOrder(req as Request, res as Response, next);
+            
+            expect(updateOrder).toHaveBeenCalledWith(updateOrderInputMock);
             expect(next).toHaveBeenCalledWith(internalException);
         });
     });
