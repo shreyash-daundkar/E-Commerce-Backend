@@ -2,7 +2,7 @@ import { CartItem, Order, Product, User } from "../services/prisma";
 import { createUserInput } from '../services/user'
 import { createProductInput } from '../services/product'
 import { CartItemWithProduct, createCartItemsInput } from "../services/cart";
-import { createOrderInput } from "../services/order";
+import { createOrderInput, updateOrderInput } from "../services/order";
 
 export const mockUser: User = {
     id: 1,
@@ -88,3 +88,8 @@ export const createOrderInputMock: createOrderInput = {
         quantity: 1,
     }],
 };
+
+export const updateOrderInputMock : updateOrderInput = {
+    id: 1,
+    isActive: false,
+}
