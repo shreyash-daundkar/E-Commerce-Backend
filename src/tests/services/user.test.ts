@@ -38,12 +38,15 @@ describe('User Service', () => {
         });
 
 
-        it('should throw error if it failed', async () => {
+        it('should return null if it failed', async () => {
 
             const errorMessage = 'Database error';
 
             (Prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error(errorMessage));
-            await expect(getUserByEmail('test@gmail.com')).rejects.toThrow(errorMessage);
+            
+            const user = await getUserByEmail('test@gmail.com');
+
+            expect(user).toBeNull();
         });
     });
 
@@ -70,12 +73,15 @@ describe('User Service', () => {
         });
 
 
-        it('should throw error if it failed', async () => {
+        it('should retun null if it failed', async () => {
 
             const errorMessage = 'Database error';
 
             (Prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error(errorMessage));
-            await expect(getUserById(1)).rejects.toThrow(errorMessage);
+            
+            const user = await getUserById(1);
+
+            expect(user).toBeNull();
         });
     });
 
@@ -92,13 +98,15 @@ describe('User Service', () => {
         });
 
 
-        it('should throw error if it failed', async () => {
+        it('should return null if it failed', async () => {
 
             const errorMessage = 'Database error';
 
             (Prisma.user.create as jest.Mock).mockRejectedValue(new Error(errorMessage));
     
-            await expect(createUser(createUserInputMock)).rejects.toThrow(errorMessage);
+            const user = await createUser(createUserInputMock);
+
+            expect(user).toBeNull();
         });
 
     });
