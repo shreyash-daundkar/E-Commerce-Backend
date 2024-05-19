@@ -92,3 +92,30 @@ export const getAllActiveOrders = async (req: Request, res: Response, next: Next
         return next( new InternalException(error));
     }
 }
+
+
+
+export const completeOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try { 
+        const id: number = +req.params.id;
+
+        const order = await updateOrder({
+            id,
+            isActive: false,
+            isComplete: true,
+        });
+
+        if(!order) {
+            throw new Error('Error updating order');
+        }
+    
+        return res.status(201).json({
+            message: 'Order completing successfully', 
+            data: order,
+            success: true,
+        });
+        
+    } catch (error) {
+        return next( new InternalException(error));
+    }
+}

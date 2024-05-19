@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { createProduct, deleteProduct, updateProduct } from "../../services/product";
 import { createProductSchema } from "../../schema/product";
-import { mockOrder, mockProduct } from "../mock.data";
-import { addProduct, editProduct, getAllActiveOrders, removeProduct } from "../../controllers/admin";
+import { mockOrder, mockProduct, updateOrderInputMock } from "../mock.data";
+import { addProduct, completeOrder, editProduct, getAllActiveOrders, removeProduct } from "../../controllers/admin";
 import { InternalException } from "../../errors/exceptions";
-import { getOrders } from "../../services/order";
+import { getOrders, updateOrder } from "../../services/order";
 
 jest.mock('../../services/product', () => ({
     createProduct: jest.fn(),
@@ -14,6 +14,7 @@ jest.mock('../../services/product', () => ({
 
 jest.mock('../../services/order', () => ({
     getOrders: jest.fn(),
+    updateOrder: jest.fn(),
 }));
 
 let req: Partial<Request>;
@@ -200,6 +201,54 @@ describe('Admin controller', () => {
             await getAllActiveOrders(req as Request, res as Response, next);
             
             expect(getOrders).toHaveBeenCalledWith();
+            expect(next).toHaveBeenCalledWith(internalException);
+        });
+    });
+
+
+    describe('Complete Orders', () => {
+    
+        beforeEach(() => {
+            req = { 
+                params: {
+                    id: "1",
+                },
+            }
+        });
+        
+    
+        it('should complete order and return success responce', async () => {
+    
+            (updateOrder as jest.Mock).mockResolvedValue(mockOrder);
+            
+            await completeOrder(req as Request, res as Response, next);
+            
+            expect(updateOrder).toHaveBeenCalledWith({
+                ...updateOrderInputMock,
+                isComplete: true,
+            });
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({
+                message: "Order completing successfully", 
+                data:mockOrder,
+                success: true,
+            });
+    
+        });
+
+        it('should return internal exception if error completing order', async () => {
+    
+            (updateOrder as jest.Mock).mockResolvedValue(null);
+
+            const error = new Error('Error updating order');
+            const internalException = new InternalException(error);
+            
+            await completeOrder(req as Request, res as Response, next);
+            
+            expect(updateOrder).toHaveBeenCalledWith({
+                ...updateOrderInputMock,
+                isComplete: true,
+            });
             expect(next).toHaveBeenCalledWith(internalException);
         });
     });
