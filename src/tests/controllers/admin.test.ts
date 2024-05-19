@@ -1,14 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import { createProduct, deleteProduct, updateProduct } from "../../services/product";
 import { createProductSchema } from "../../schema/product";
-import { mockProduct } from "../mock.data";
-import { addProduct, editProduct, removeProduct } from "../../controllers/admin";
+import { mockOrder, mockProduct } from "../mock.data";
+import { addProduct, editProduct, getAllActiveOrders, removeProduct } from "../../controllers/admin";
 import { InternalException } from "../../errors/exceptions";
+import { getOrders } from "../../services/order";
 
 jest.mock('../../services/product', () => ({
     createProduct: jest.fn(),
     updateProduct: jest.fn(),
     deleteProduct: jest.fn(),
+}));
+
+jest.mock('../../services/order', () => ({
+    getOrders: jest.fn(),
 }));
 
 let req: Partial<Request>;
@@ -162,6 +167,39 @@ describe('Admin controller', () => {
             await removeProduct(req as Request, res as Response, next);
             
             expect(deleteProduct).toHaveBeenCalledWith(1);
+            expect(next).toHaveBeenCalledWith(internalException);
+        });
+    });
+
+
+    describe('Get Orders', () => {
+
+        it('should fetch order and return success responce', async () => {
+    
+            (getOrders as jest.Mock).mockResolvedValue([mockOrder]);
+            
+            await getAllActiveOrders(req as Request, res as Response, next);
+            
+            expect(getOrders).toHaveBeenCalledWith();
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({
+                message: 'Fetched orders successfully', 
+                data:[mockOrder],
+                success: true,
+            });
+    
+        });
+
+        it('should return internal exception if error getting order', async () => {
+    
+            (getOrders as jest.Mock).mockResolvedValue(null);
+
+            const error = new Error('Error getting orders');
+            const internalException = new InternalException(error);
+            
+            await getAllActiveOrders(req as Request, res as Response, next);
+            
+            expect(getOrders).toHaveBeenCalledWith();
             expect(next).toHaveBeenCalledWith(internalException);
         });
     });

@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { createProductSchema } from "../schema/product";
 import { createProduct, deleteProduct, updateProduct } from "../services/product";
 import { InternalException } from "../errors/exceptions";
+import { User } from "../services/prisma";
+import { getOrders, updateOrder } from "../services/order";
 
 
 export const addProduct = async (req: Request, res: Response, next: NextFunction) => {
@@ -64,6 +66,25 @@ export const removeProduct = async (req: Request, res: Response, next: NextFunct
         return res.status(200).json({
             message: 'Product removed successfully', 
             data: product,
+            success: true,
+        });
+        
+    } catch (error) {
+        return next( new InternalException(error));
+    }
+}
+
+
+export const getAllActiveOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try { 
+        const orders = await getOrders();
+        if(!orders) {
+            throw new Error('Error getting orders');
+        }
+    
+        return res.status(201).json({
+            message: 'Fetched orders successfully', 
+            data: orders,
             success: true,
         });
         
