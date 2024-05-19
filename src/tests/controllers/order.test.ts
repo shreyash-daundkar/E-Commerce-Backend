@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { getCartItemsByUserId } from "../../services/cart";
 import { createOrderInputMock, createUserInputMock, mockCartItem, mockCartItemWithProduct, mockOrder } from "../mock.data";
-import { createOrder } from "../../services/order";
-import { makeOrder } from "../../controllers/order";
+import { createOrder, getOrders } from "../../services/order";
+import { getOrdersByUserId, makeOrder } from "../../controllers/order";
 import { InternalException, NotFoundException } from "../../errors/exceptions";
 import { ErrorCode } from "../../errors/codes";
 
@@ -12,6 +12,7 @@ jest.mock('../../services/cart', () => ({
 
 jest.mock('../../services/order', () => ({
     createOrder: jest.fn(),
+    getOrders: jest.fn(),
 }));
 
 let req: Partial<Request>;
@@ -93,6 +94,51 @@ describe('Order controller', () => {
             
             expect(getCartItemsByUserId).toHaveBeenCalledWith(1);
             expect(createOrder).not.toHaveBeenCalled();
+            expect(next).toHaveBeenCalledWith(internalException);
+        });
+    });
+
+
+
+    describe('Get Orders', () => {
+    
+        beforeEach(() => {
+            req = { 
+                body: {
+                    user: {
+                        id: 1,
+                    },
+                },
+            }
+        });
+        
+    
+        it('should fetch order and return success responce', async () => {
+    
+            (getOrders as jest.Mock).mockResolvedValue([mockOrder]);
+            
+            await getOrdersByUserId(req as Request, res as Response, next);
+            
+            expect(getOrders).toHaveBeenCalledWith(1);
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({
+                message: 'Fetched orders successfully', 
+                data:[mockOrder],
+                success: true,
+            });
+    
+        });
+
+        it('should return internal exception if error getting order', async () => {
+    
+            (getOrders as jest.Mock).mockResolvedValue(null);
+
+            const error = new Error('Error getting orders');
+            const internalException = new InternalException(error);
+            
+            await getOrdersByUserId(req as Request, res as Response, next);
+            
+            expect(getOrders).toHaveBeenCalledWith(1);
             expect(next).toHaveBeenCalledWith(internalException);
         });
     });

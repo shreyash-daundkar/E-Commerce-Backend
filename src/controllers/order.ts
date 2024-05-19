@@ -56,3 +56,22 @@ export const makeOrder = async (req: Request, res: Response, next: NextFunction)
 }
 
 
+export const getOrdersByUserId = async (req: Request, res: Response, next: NextFunction) => {
+    try { 
+        const user: User = req.body.user;
+
+        const orders = await getOrders(user.id);
+        if(!orders) {
+            throw new Error('Error getting orders');
+        }
+    
+        return res.status(201).json({
+            message: 'Fetched orders successfully', 
+            data: orders,
+            success: true,
+        });
+        
+    } catch (error) {
+        return next( new InternalException(error));
+    }
+}
