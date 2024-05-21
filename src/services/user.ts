@@ -10,8 +10,8 @@ export const getUserByEmail = async (email : string): Promise<User | null> => {
         return user;
 
     } catch (error) {
-        console.log("Error fiding user by email");
-        throw error;
+        console.log("Error fiding user by email", error);
+        return null;
     }
 }
 
@@ -23,8 +23,8 @@ export const getUserById = async (id : number): Promise<User | null> => {
         return user;
 
     } catch (error) {
-        console.log("Error fiding user by email");
-        throw error;
+        console.log("Error fiding user by email", error);
+        return null;
     }
 }
 
@@ -35,13 +35,13 @@ export interface createUserInput {
     password: string,
 }
 
-export const createUser = async (data: createUserInput): Promise<User> => {
+export const createUser = async (data: createUserInput): Promise<User | null> => {
     try {
         const user = await Prisma.user.create({ data });
         return user;
 
     } catch (error) {
-        console.log("Error creating user");
-        throw error;
+        console.log("Error creating user", error);
+        return null;
     }
 }
