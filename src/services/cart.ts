@@ -1,4 +1,4 @@
-import Prisma, { CartItem } from "./prisma";
+import Prisma, { CartItem, Product } from "./prisma";
 
 export interface createCartItemsInput {
     userId: number,
@@ -51,8 +51,11 @@ export const deleteCartItem = async (id: number, userId: number): Promise<CartIt
     }
 }
 
+export interface CartItemWithProduct extends CartItem {
+    product: Product;
+}
 
-export const getCartItemsByUserId = async (id: number): Promise<Array<CartItem> | null> => {
+export const getCartItemsByUserId = async (id: number): Promise<Array<CartItemWithProduct> | null> => {
     try {
 
         const cartItems = await Prisma.cartItem.findMany({
