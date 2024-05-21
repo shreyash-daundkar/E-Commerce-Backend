@@ -20,7 +20,7 @@ export const createProduct = async (data: createProductInput): Promise<Product |
         return product;
 
     } catch (error) {
-        console.log("Error creating product");
+        console.log("Error creating product", error);
         return null;
     }
 }
@@ -35,7 +35,7 @@ export const updateProduct = async (id: number, data: updateProductArgs): Promis
         return product;
 
     } catch (error) {
-        console.log("Error updating product");
+        console.log("Error updating product", error);
         return null;
     }
 }
@@ -49,7 +49,7 @@ export const deleteProduct = async (id: number): Promise<Product | null> => {
         return product;
 
     } catch (error) {
-        console.log("Error deleting product");
+        console.log("Error deleting product", error);
         return null;
     }
 }
@@ -63,7 +63,7 @@ export const readProductById = async (id: number): Promise<Product | null> => {
         return product;
 
     } catch (error) {
-        console.log("Error reading product");
+        console.log("Error reading product", error);
         return null;
     }
 }
@@ -74,7 +74,7 @@ export const getProductCount = async (): Promise<number | null> => {
         return count;
 
     } catch (error) {
-        console.log("Error counting product");
+        console.log("Error counting product", error);
         return null;
     }
 }
@@ -89,7 +89,7 @@ export const readAllProducts = async (skip?: number, take?: number): Promise<Arr
         return products;
 
     } catch (error) {
-        console.log("Error reading product");
+        console.log("Error reading product", error);
         return null;
     }
 }
