@@ -92,6 +92,26 @@ describe('User controller', () => {
             expect(hash).not.toHaveBeenCalled();
             expect(createUser).not.toHaveBeenCalled();
         });
+
+
+        it('Should give fail responce if ger error creating user', async () => {
+            
+            (signUpSchema.parse as jest.Mock).mockResolvedValue(req.body);
+            (getUserByEmail as jest.Mock).mockResolvedValue(null);
+            (hash as jest.Mock).mockResolvedValue('password');
+            (createUser as jest.Mock).mockResolvedValue(null);
+            
+            const internalException = new InternalException(new Error('User already exists!'));
+            
+            await signUp(req as Request, res as Response, next);
+            
+            expect(signUpSchema.parse).toHaveBeenCalledWith(req.body);
+            expect(signUpSchema.parse).toHaveBeenCalledWith(req.body);
+            expect(getUserByEmail).toHaveBeenCalledWith(req.body.email);
+            expect(hash).toHaveBeenCalled();
+            expect(createUser).toHaveBeenCalled();
+            expect(next).toHaveBeenCalledWith(internalException);
+        });
     });
 
 
