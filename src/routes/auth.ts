@@ -5,7 +5,7 @@ import { errorHandler } from '../errors/handler';
 
 const authRouter: Router = Router();
 
-authRouter.post('/signup', errorHandler(signUp));
-authRouter.post('/login', errorHandler(login));
+authRouter.post('/signup', signUp);
+authRouter.post('/login', login);
 
 export default authRouter;
