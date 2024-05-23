@@ -3,13 +3,14 @@ version: '3.9'
 services:
   db:
     image: mysql:8.0
-    container_name: mysql
+    container_name: mysqle
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - "3307:3306"
-    # volumes:
+     volumes:
+     - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
     #   - db_data:/var/lib/mysql
 
   app:
