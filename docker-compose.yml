@@ -9,8 +9,8 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - "3307:3306"
-    volumes:
-      - db_data:/var/lib/mysql
+    # volumes:
+    #   - db_data:/var/lib/mysql
 
   app:
     build:
@@ -26,5 +26,5 @@ services:
     depends_on:
       - db
 
-volumes:
-  db_data:
+# volumes:
+#   db_data:
