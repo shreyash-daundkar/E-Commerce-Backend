@@ -3,6 +3,7 @@ set -e
 
 # Function to execute Prisma migration with a retry limit
 execute_migration() {
+  sleep 20
   echo "Running database migrations..."
   local retries=10
   local count=0
