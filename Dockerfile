@@ -20,7 +20,7 @@ COPY . .
 # ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 #CMD ["npm", "start"]
-#CMD ["npm", "run", "dev"]
-CMD ["pm2", "start", "ecosystem.config.js"]
+CMD ["npm", "run", "dev"]
+#CMD ["pm2", "start", "ecosystem.config.js"]
 
 EXPOSE 3000
