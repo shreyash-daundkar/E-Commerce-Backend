@@ -12,7 +12,7 @@ RUN npx prisma generate
 
 COPY . .
 
-RUN npm run build
+#RUN npm run build
 
 # COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 # RUN chmod +x /usr/local/bin/entrypoint.sh
