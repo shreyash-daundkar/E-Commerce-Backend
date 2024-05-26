@@ -21,6 +21,6 @@ COPY . .
 # ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 
-CMD ["pm2", "start", "dist/index.js"]
+CMD ["pm2-runtime", "start", "dist/index.js"]
 
 EXPOSE 3000
